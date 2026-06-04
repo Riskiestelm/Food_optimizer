@@ -26,7 +26,7 @@ def fetch_all_dishes() -> list[dict]:
     records = sheet.get_all_records()
     dishes = []
     for row in records:
-        if str(row.get("active", "")).strip().upper() != "TRUE":
+        if str(row.get("active", "")).strip().upper() not in ("TRUE", "ACTIVE"):
             continue
         name = str(row.get("name", "")).strip()
         dtype = str(row.get("type", "")).strip().lower()
