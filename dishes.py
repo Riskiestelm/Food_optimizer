@@ -3,7 +3,6 @@ import json
 import gspread
 from google.oauth2.service_account import Credentials
 from cooldown import is_on_cooldown
-import random
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SHEET_ID = os.getenv("GOOGLE_SHEET_ID")
@@ -37,27 +36,16 @@ def fetch_all_dishes() -> list[dict]:
     return dishes
 
 
-def suggest_dish(dtype: str, meal: str) -> dict | None:
+def get_available_dishes(dtype: str, meal: str) -> list[dict]:
     """
-    Suggest a random dish filtered by type and meal slot, excluding cooldowns.
+    Return all available (non-cooldown) dishes for a given type and meal slot.
     dtype: 'veg' or 'non-veg'
     meal: 'breakfast', 'lunch', or 'dinner'
     """
     all_dishes = fetch_all_dishes()
-    available = [
+    return [
         d for d in all_dishes
         if d["type"] == dtype
         and meal in d["meals"]
         and not is_on_cooldown(d["name"])
     ]
-    if not available:
-        return None
-    return random.choice(available)
-
-
-def suggest_both(meal: str) -> dict:
-    """Suggest one veg and one non-veg dish for a given meal slot."""
-    return {
-        "veg": suggest_dish("veg", meal),
-        "non-veg": suggest_dish("non-veg", meal)
-    }
